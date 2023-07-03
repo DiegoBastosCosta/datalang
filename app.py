@@ -24,6 +24,7 @@ class App:
                 Page("homepage.py", "Homepage", "🏠"),
                 Page("preprocessing.py", "Pre-processing", "🧹"),
                 Page("bertopic_tools.py", "Bertopic", "📚"),
+                Page("pygwalker_page.py", "PygwalkerPage", "📊")
             ]
         )
 

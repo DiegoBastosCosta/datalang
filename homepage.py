@@ -37,6 +37,11 @@ class HomePage:
                 st.session_state[HomePage.DATA] = data
         else:
             st.warning("You already uploaded your document, if you wish to start a new work, save the current state and reload the page")
+            data = st.session_state[HomePage.DATA]
+            min_value = min(1, len(data))
+            max_value = max(50, len(data))
+            sample_size = st.slider('Sample size', min_value=min_value, max_value=max_value, value=int(max_value/2))
+            st.dataframe(data.sample(n=sample_size), use_container_width=True)
             st.info("It's recommended that you continue to the pre-processing page")
         st.button("Continue")
 
