@@ -34,6 +34,7 @@ class BertopicTools:
     DOCS = 'docs'
     TOPIC_MODEL = 'topic_model'
     EMBEDDINGS = 'embeddings'
+    TOPIC_MODELING_RESULT = 'topic_modeling_result'
     TOPICS = 'topics'
     PROBS = 'probs'
     DATA = 'data'
@@ -127,6 +128,7 @@ class BertopicTools:
             Tuple[pd.DataFrame, BERTopic, list, list, bool]: Tuple consisting of DataFrame with topic representations,
                 BERTopic model, embeddings, topics, probabilities, and a flag indicating whether the model was saved.
         """
+        _df = _df.reset_index(drop=True)
         docs = _df[column].tolist()
         topic_model, topics, probs, embeddings, model_saved = None, None, None, None, False
         if embedding_model_name:
@@ -146,12 +148,19 @@ class BertopicTools:
             self.save_model(topic_model, save_path)
             model_saved = True
     
-        topic_df = pd.DataFrame({"Document": docs, "Topic": topics})
+        # topic_df = pd.DataFrame({"Document": docs, "Topic": topics})
+        # topic_info = topic_model.get_topic_info()
+        # topic_name_map = topic_info.set_index('Topic')['Name'].to_dict()
+        # topic_df['Topic Name'] = topic_df['Topic'].map(topic_name_map)
+
+        # return topic_df, topic_model, embeddings, topics, probs, model_saved
+        _df['Document'] = docs
+        _df['Topic'] = topics
         topic_info = topic_model.get_topic_info()
         topic_name_map = topic_info.set_index('Topic')['Name'].to_dict()
-        topic_df['Topic Name'] = topic_df['Topic'].map(topic_name_map)
+        _df['Topic Name'] = _df['Topic'].map(topic_name_map)
 
-        return topic_df, topic_model, embeddings, topics, probs, model_saved
+        return _df, topic_model, embeddings, topics, probs, model_saved
 
     def load_transform(self, _df: pd.DataFrame, column: str, model_path: str = "", 
                           calculate_probs: bool = True, 
@@ -171,6 +180,7 @@ class BertopicTools:
             Tuple[pd.DataFrame, BERTopic, list, Optional[list]]: Tuple consisting of DataFrame with topic representations,
                 BERTopic model, topic embeddings, topics, and probabilities.
         """
+        _df = _df.reset_index(drop=True)
         docs = _df[column].tolist()
         model_path = model_path.strip()
         topic_model = BERTopic.load(model_path)
@@ -190,12 +200,19 @@ class BertopicTools:
             else:
                 topics = topic_model.get_topics()
 
-        topic_df = pd.DataFrame({"Document": docs, "Topic": topics})
+        # topic_df = pd.DataFrame({"Document": docs, "Topic": topics})
+        # topic_info = topic_model.get_topic_info()
+        # topic_name_map = topic_info.set_index('Topic')['Name'].to_dict()
+        # topic_df['Topic Name'] = topic_df['Topic'].map(topic_name_map)
+
+        # return topic_df, topic_model, topic_model.topic_embeddings_, topics, probs
+        _df['Document'] = docs
+        _df['Topic'] = topics
         topic_info = topic_model.get_topic_info()
         topic_name_map = topic_info.set_index('Topic')['Name'].to_dict()
-        topic_df['Topic Name'] = topic_df['Topic'].map(topic_name_map)
+        _df['Topic Name'] = _df['Topic'].map(topic_name_map)
 
-        return topic_df, topic_model, topic_model.topic_embeddings_, topics, probs
+        return _df, topic_model, topic_model.topic_embeddings_, topics, probs
     
     def display_data(self) -> None:
       """
@@ -222,10 +239,12 @@ class BertopicTools:
               st.write(f"**{topic}**")
               
               # Filter dataframe for the specific topic
+
               topic_df = docs[docs['Topic Name'] == topic]
 
               # Limit to the number of documents
               num_docs_topic = min(num_docs, len(topic_df))
+              #st.session_state[self.TOPIC_MODELING_RESULT] = topic_df
               topic_df = topic_df.sample(n=num_docs_topic)
 
               for index, row in topic_df.iterrows():
@@ -328,10 +347,9 @@ class BertopicTools:
         
         data = st.session_state[self.DATA]
         string_columns = [column for column in data.columns if data[column].dtype == 'object']
-        column = st.sidebar.selectbox('Select the column you want to use on this pipeline', string_columns)
+        column = st.sidebar.selectbox('Select the column you want to use on this pipeline', string_columns, len(string_columns) -1)
 
-        with st.expander("Loaded doc - 100 first out of {}".format(len(data))):
-            st.dataframe(data[0:100], use_container_width=True)
+        sample_empty = st.empty()
 
         st.session_state[self.DOCS] = st.session_state.get(self.DOCS, None)
         st.session_state[self.TOPIC_MODEL] = st.session_state.get(self.TOPIC_MODEL, None)
@@ -384,6 +402,12 @@ class BertopicTools:
 
         if st.session_state[self.TOPIC_MODEL] is not None and st.session_state[self.TOPICS] is not None:
             self.display_data()
+            with sample_empty.expander("Current state sample out of {}".format(len(data))):
+                data = st.session_state[self.DATA]
+                min_value = min(1, len(data))
+                max_value = max(50, len(data))
+                sample_size = st.slider('Sample size', min_value=min_value, max_value=max_value, value=int(max_value/2))
+                st.dataframe(data.sample(n=sample_size), use_container_width=True)
         
 if __name__ == "__main__":
     BertopicTools().render()
