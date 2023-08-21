@@ -53,7 +53,7 @@ class PreProcessingPage:
     COLUMN_TOKEN_COUNT = '_token_count'
     SPACY_MODEL_NAME = 'spacy_model_name'
     CHOSEN_PROCESSING_STEPS = 'chosen_preprocessing_steps'
-    SPACY_LANGUAGE_OPTIONS = ['en_core_web_sm', 'xx_ent_wiki_sm']
+    SPACY_LANGUAGE_OPTIONS = ['en_core_web_sm', 'pt_core_news_sm', 'xx_ent_wiki_sm']
 
     def __init__(self):
         """

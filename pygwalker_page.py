@@ -6,7 +6,9 @@ from st_pages import add_page_title
 
 class PygwalkerPage:
     DATA = 'data'
+    DOCS = 'docs'
     TOPIC_MODELING_RESULT = 'topic_modeling_result'
+    AVAILABLE_DATAFRAMES = [DATA, DOCS, TOPIC_MODELING_RESULT]
 
     def render(self):
         try:
@@ -19,11 +21,7 @@ class PygwalkerPage:
 
         add_page_title()
 
-        available_dataframes = []
-        if self.DATA in st.session_state:
-            available_dataframes.append(self.DATA)
-        if self.TOPIC_MODELING_RESULT in st.session_state:
-            available_dataframes.append(self.TOPIC_MODELING_RESULT)
+        available_dataframes = [df for df in self.AVAILABLE_DATAFRAMES if df in st.session_state]
 
         if not available_dataframes:
             st.error("It seems like no document is uploaded, you should probably visit the Homepage")
