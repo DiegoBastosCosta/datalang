@@ -1,3 +1,4 @@
+
 import streamlit as st
 from st_pages import Page, add_page_title, show_pages
 
@@ -21,10 +22,10 @@ class App:
         """
         show_pages(
             [
-                Page("homepage.py", "Homepage", "🏠"),
-                Page("preprocessing.py", "Pre-processing", "🧹"),
-                Page("bertopic_tools.py", "Bertopic", "📚"),
-                Page("pygwalker_page.py", "PygwalkerPage", "📊")
+                Page("./homepage.py", "Homepage", "🏠"),
+                Page("./preprocessingv2.py", "Pre-processingv2", "🧹"),
+                Page("./topicmodelingtool.py", "Bertopic", "📚"),
+                Page("./pygwalker_page.py", "PygwalkerPage", "📊")
             ]
         )
 
